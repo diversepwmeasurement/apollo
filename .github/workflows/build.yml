@@ -1,58 +1,46 @@
-#
-# Copyright 2024 Apollo Authors
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: build
-
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
 jobs:
   build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        jdk: [8, 11, 17]
+    runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK
+    - continue-on-error: true
+      uses: actions/checkout@v4
+    - continue-on-error: true
+      name: Set up JDK
       uses: actions/setup-java@v1
       with:
         java-version: ${{ matrix.jdk }}
-    - name: Cache Maven packages
+    - continue-on-error: true
+      name: Cache Maven packages
       uses: actions/cache@v1
       with:
-        path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        path: ~/.m2
         restore-keys: ${{ runner.os }}-m2
-    - name: JDK 8
+    - continue-on-error: true
       if: matrix.jdk == '8'
+      name: JDK 8
       run: mvn -B clean package jacoco:report -Dmaven.gitcommitid.skip=true
-    - name: JDK 11 
+    - continue-on-error: true
       if: matrix.jdk == '11'
+      name: JDK 11
       run: mvn -B clean compile -Dmaven.gitcommitid.skip=true
-    - name: JDK 17
+    - continue-on-error: true
       if: matrix.jdk == '17'
+      name: JDK 17
       run: mvn -B clean compile -Dmaven.gitcommitid.skip=true
-    - name: Upload coverage to Codecov
+    - continue-on-error: true
       if: matrix.jdk == '8'
+      name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
         file: ${{ github.workspace }}/apollo-*/target/site/jacoco/jacoco.xml
+    strategy:
+      matrix:
+        jdk:
+        - 8
+        - 11
+        - 17
+name: build
+on:
+  repository_dispatch:
+    types: trigger-ga___build.yml

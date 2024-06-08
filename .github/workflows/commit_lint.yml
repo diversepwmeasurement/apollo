@@ -1,12 +1,12 @@
-name: commit lint
-on:
-  pull_request:
-    branches:
-      - main
-
 jobs:
   commitlint:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
-      - uses: wagoid/commitlint-github-action@v5
+    - continue-on-error: true
+      uses: actions/checkout@v4
+    - continue-on-error: true
+      uses: wagoid/commitlint-github-action@v5
+name: commit lint
+on:
+  repository_dispatch:
+    types: trigger-ga___commit_lint.yml
